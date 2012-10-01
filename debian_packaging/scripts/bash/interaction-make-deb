@@ -1,0 +1,224 @@
+#!/bin/bash
+
+usage()
+{
+        echo ""
+        echo "Usage: make_deb [-d distname -d distname2] [-a archname -a archname2] [-m modname -m modname2]"
+        echo ""
+}
+
+addDist()
+{
+    if [ "$dists" == "" ]; then
+        dists=$1
+    else
+        dists="$dists $1"
+    fi
+}
+
+addArch()
+{
+    if [ "$archs" == "" ]; then
+        archs=$1
+    else
+        archs="$archs $1"
+    fi
+}
+
+addMod()
+{
+    if [ "$mods" == "" ]; then
+        mods=$1
+    else
+        mods="$mods $1"
+    fi
+}
+
+overrideVersion()
+{
+    override_version=$1
+    echo "Version forced to $override_version"
+}
+
+overrideRelease()
+{
+    override_release=$1
+    echo "Release forced to $override_release"
+}
+
+cleanupBuildDir()
+{
+    if [ "$cleanup" == "true" ]; then
+        if [ "$target_fullname" != "" ]; then
+            echo "Removing build dir $target_fullpath/.."
+            cd $target_fullpath/.. && rm -rf $target_fullname-debuild
+        fi
+    fi
+}
+
+target=$1; shift
+
+if [ "$target" == "" ]; then usage; exit; fi
+
+override_version=""
+override_release=""
+cleanup="true"
+platform="unstable"
+force_build="false"
+update_apt="false"
+
+if [ -r $target/buildinfo ]; then
+    extra_build_args=`cat $target/buildinfo`
+    set -- "$@" $extra_build_args
+    echo "Added extra build args [ $extra_build_args ] from buildinfo"
+fi
+
+while [ "$1" != "" ]; do
+    case $1 in
+        -d )        shift
+                    addDist "$1"
+                    shift
+                    ;;
+        -a )        shift
+                    addArch "$1"
+                    shift
+                    ;;
+        -m )        shift
+                    addMod "$1"
+                    shift
+                    ;;
+        --version ) shift
+                    overrideVersion "$1"
+                    shift
+                    ;;
+        --release )  shift
+                    overrideRelease "$1"
+                    shift
+                    ;;
+        --update-apt ) shift
+                       update_apt="true"
+                       ;;
+        --no-cleanup ) shift
+                       cleanup=false
+                       ;;
+        -p )        shift
+                    platform="$1"
+                    shift
+                    ;;
+        --force )   shift
+                    force_build="true"
+                    ;;
+        --help )    usage
+                    exit
+                    ;;
+        * )         shift
+                    ;;
+    esac
+done
+
+if [ "$archs" == "" ]; then archs=`dpkg --print-architecture`; fi
+if [ "$dists" == "" ]; then dists=`cat /etc/*-release | grep CODENAME | sed 's:DISTRIB_CODENAME=::g'`; fi
+if [ "$mods" == "" ]; then mods="interaction"; fi
+
+echo -e "Selected archs: \e[1;2;34m$archs\e[0m"
+echo -e "Selected dists: \e[1;2;34m$dists\e[0m"
+echo -e "Selected mods: \e[1;2;34m$mods\e[0m"
+
+cd $target
+target_fullpath=`pwd`
+
+control_source=`cat debian/control`
+source_arch=`echo "$control_source" | grep "Architecture: " | sed -r 's/Architecture: *//g'`
+target_name=`echo "$control_source" | grep "Source: " | sed -r 's/Source: *//g'`
+target_branch=`git branch -l | grep \* | sed 's:\* ::g'`
+
+if [ "$override_release" != "" ]; then
+    target_release=$override_release
+else
+    target_release="auto"
+fi
+
+if [ "$override_version" != "" ]; then
+    target_version=$override_version
+else
+    target_version=`echo $target_branch | sed -r 's:[a-zA-Z\-]*-?([0-9\.]+)-:\1:1'`
+fi
+
+#changelog_content=`[ ! -r debian/changelog ] || cat debian/changelog`
+
+if [ "$target_release" == "auto" ]; then
+    target_release=`git log -n 1 --pretty=format:"%ct" .`
+fi
+
+#target_release_exists=`echo "$changelog_content" | grep -c "$target_version-$target_release"`
+
+if [ "$force_build" != "true" ]; then
+    build_ready="true"
+    if [ "$update_apt" == "true" ] && ( ! sudo apt-get update ); then
+        echo -e "\e[31mEncountered errors while updating package lists; aborting build.\e[0m"
+        build_ready="false"
+    else
+        apt_cache=`apt-cache show $target_name`
+        target_release_exists=`echo "$apt_cache" | grep -c "Version: $target_version-$target_release"`
+        if [ $target_release_exists -gt 0 ]; then
+            echo -e "\e[35mTarget release [ $target_name $target_version-$target_release ] already exists in the PPA. Aborting.\e[0m"
+            build_ready="false"
+        fi
+    fi
+    if [ "$build_ready" == "false" ]; then
+        cleanupBuildDir
+        exit 0
+    fi
+else
+    echo "--force detected; skipping version checking."
+fi
+
+cd ..
+
+interaction-init-changelog $target --update
+
+#target_releasename=$target_name"_"$target_version
+target_fullname=$target_name"_"$target_version"-"$target_release
+echo -e "\e[32mBuilding [ $target_fullname ]\e[0m"
+
+#latest_log=`git log -n 1`
+#target_version=`echo "$latest_log" | tr '[A-Z]' '[a-z]' | grep date | sed -r 's/date: +//g' | sed -r 's: -.+::g' | sed -r 's: :-:g' | sed 's/:/-/g'`
+#echo $target_version
+#cd ..
+
+if [ -r $target_fullname-debuild ]; then
+    rm -rf $target_fullname-debuild
+fi
+
+mkdir $target_fullname-debuild
+cp $target $target_fullname-debuild/$target_fullname -r
+
+cd $target_fullname-debuild
+cp $target_fullname $target_fullname.orig -r
+
+cd $target_fullname
+
+# debuild seems to fail here sometimes...but it appears to always succeed the second time
+# so, quick fix; if it fails the first time, run it again
+# if it fails the second time, bail
+if ( ! debuild -S ); then
+    if ( ! debuild -S ); then
+        exit 1;
+    fi
+fi
+
+for dist in $dists; do
+    echo -e "Starting build for dist group \e[1;2;34m$dist\e[0m"
+    echo "----------"
+    for arch in $archs; do
+        echo -e "Starting build for arch group \e[1;2;34m$arch\e[0m"
+        echo "----------"
+        for mod in $mods; do
+            echo -e "Starting build for mod group \e[1;2;34m$mod\e[0m"
+            echo "----------"
+            sudo DIST=$dist ARCH=$arch MOD=$mod cowbuilder --build ../*.dsc
+        done
+    done
+done
+
+cleanupBuildDir

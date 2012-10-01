@@ -1,0 +1,30 @@
+This project contains three source trees: probabilistics, scripts, and simulated-sensing.
+
+For each source tree
+ - Determine which type of debian package should be created (single binary, multi-binary, arch-independent, or lib)
+ - Write, and ideally run, the command required to initialze the debian folder
+   - For projects without version info, you may use "0.0.1" as the version
+   - For projects without release info, you may use the UNIX timestamp at which the last commit on this project was made
+ - Add two entries to the changelog, in the appropriate format, using the last two entries from the commit log for this project
+ - Determine which files and folders these projects intend to install using the both the source and the information below; then set the
+   appropriate information in any "install" and "dirs" files
+ - All of these projects at least require CMake to build; probabilistics requires an additional package to build; simulated-sensing is designed
+   to compile against multiple packages in ROS electric
+    - Add cmake as a build dependency to the control file for these projects
+    - Determine which extra package probabilistics needs at compile time and add it to the control file for probabilistics
+    - Determine which ROS packages simulated-sensing needs at compile time, which Ubuntu packages contain those ROS packages, and then add them
+      to the control file for simulated-sensing
+
+Target install/dirs/links hints
+ - scripts
+   - all executables should be placed in /usr/bin after unpacking
+ - probabilistics
+   - all libraries should be placed in /usr/lib after unpacking the base package
+   - include/interaction should be placed in /usr/include after unpacking the -dev package
+   - all libraries should be accessible by their basenames (ie libwhatever.so and not libwhatever.so.x.x.x) after unpacking the -dev package
+ - simulated-sensing
+   - the entire stack should be placed in /opt/ros/electric/stacks
+
+Bonus points (30)
+  - Modify the rules file for simulated-sensing such that it can be compiled on a system without an interactive shell (ie with no ROS
+    environment variables exported by the shell on login)

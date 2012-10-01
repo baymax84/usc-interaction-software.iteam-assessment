@@ -1,0 +1,114 @@
+#!/bin/bash
+
+usage()
+{
+	echo "..."
+}
+
+addEntry()
+{
+    commit_id="$1"
+    entry_location="back"
+    if [ $# -ge 2 ]; then entry_location=$2; fi
+
+    commit_author=`git log -n 1 --pretty=format:"%cn <%ce>" $commit_id`
+    commit_date=`git log -n 1 --pretty=format:"%cD" $commit_id`
+    commit_subject=`git log -n 1 --pretty=format:"%s" $commit_id`
+#    commit_body=`git log -n 1 --pretty=format:"%b" $commit_id`
+#    commit_full=`echo "$commit_entry" | awk '/^   /,0' | sed -r 's/(^    )/\1+ /g'`
+    commit_release=`git log -n 1 --pretty=format:"%ct" $commit_id`
+
+    commit_release_exists=`echo "$old_entries" | grep -c "$commit_release"`
+
+    if [ $commit_release_exists -gt 0 ]; then
+        echo "Release [ $commit_release ] already exists in changelog. Aborting."
+        exit 0
+    fi
+
+    echo "Adding entry [ $commit_id ]"
+
+    new_entry="$target_name ($version-$commit_release) $platform; urgency=low
+
+  * Commit $commit_id
+    + $commit_subject
+
+ -- $commit_author  $commit_date"
+
+    if [ "$new_entries" != "" ]; then
+        spacer="
+
+"
+    fi
+
+    if [ "$entry_location" == "back" ]; then
+        new_entries="$new_entries$spacer$new_entry"
+    elif [ "$entry_location" == "front" ]; then
+        new_entries="$new_entry$spacer$new_entries"
+    fi
+}
+
+target=$1; shift
+
+if [ "$target" == "" ]; then usage; exit; fi
+
+version="<version>"
+platform="unstable"
+mode="new"
+
+if [ -r $target/buildinfo ]; then
+        extra_build_args=`cat $target/buildinfo`
+        set -- "$@" $extra_build_args
+        echo "Added extra build args [ $extra_build_args ] from buildinfo"
+fi
+
+while [ "$1" != "" ]; do
+    case $1 in
+        --version ) shift
+                    version="$1"
+                    shift
+                    ;;
+        -p )        shift
+                    platform="$1"
+                    shift
+                    ;;
+        --update )  shift
+                    mode="update"
+                    ;;
+        --help )    usage
+                    exit
+                    ;;
+        * )         shift
+                    ;;
+    esac
+done
+
+cd $target
+
+target_name=`cat debian/control | grep Source: | sed -r 's/Source: *//g'`
+
+if [ "$mode" == "update" ]; then
+    old_entries=`[ ! -r debian/changelog ] || cat debian/changelog`
+    newest_id=`echo "$old_entries" | grep "Commit" --max-count 1 | sed -r 's:.+ ([a-z0-9]+):\1:'`
+    if [ "$newest_id" != "" ]; then
+        commit_range="$newest_id"".."
+    fi
+fi
+
+commit_ids=`git log --pretty=format:"%H" $commit_range .`
+
+for commit_id in $commit_ids; do
+    addEntry "$commit_id"
+done
+
+# if new and old entries are not empty, join them with a spacer
+if [ "$new_entries" != "" ] && [ "$old_entries" != "" ]; then
+    spacer="
+
+"
+else
+    spacer=""
+fi
+
+if [ "$new_entries" != "" ] || [ "$old_entries" != "" ]; then
+    echo "$new_entries$spacer$old_entries" > debian/changelog
+fi
