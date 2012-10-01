@@ -1,0 +1,28 @@
+Notes
+ - A suggested skeleton cmake structure and classes/testers have been provided for convenience
+
+References
+ - http://en.wikipedia.org/wiki/Linked_list
+
+Goal
+ - Implement a linear, singly-linked (forward-iterable) list which can store values of type "double"
+ - As part of your implementation, you must also provide the node/iterator class that forms the basis of your list
+
+Part 1
+ - You must implement the following capabilities for your node/iterator class
+   - Forward-iteration via "node ++"
+   - De-referencing via "*node"
+
+Part 2
+ - You must implement the following functions for your list:
+   - void push_front( double const & ) // add a new element before the one at the front of the list
+   - void push_back( double const & ) // add a new element after the one at the back of the list
+   - <node> begin() // return a node/iterator to the element at the front of the list
+   - <node> end() //  return a node/iterator to the element at the back of the list
+   - double & front() // return the value of the element at the front of the list
+   - double & back() // return the value of the element at the end of the list
+   - <node> insert( double const &, <node> ) // insert a new element before the given node/iterator
+   - unsigned int size() // return the number of elements in the list
+
+Part 3
+  - Implement a simple tester that shows how the above functions can be used
