@@ -1,0 +1,4 @@
+This project defines a simple Landmark class, instantiates + adds some landmarks to an array, then tries to print the landmarks in a variety of ways.
+
+1. This simple program contains multiple errors that will result in segmentation faults and/or logic errors; locate and fix them
+2. Insert a comment directly above each error-containing line and give a very brief explanation of the error, its effects, and how your fix resolves it
