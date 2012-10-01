@@ -1,0 +1,11 @@
+Look at include/coding_style/example_type.h
+
+This file contains a bunch of formatting examples for a wide range of situations. I implemented everything in the .h for simplicity; under
+normal conditions, non-template function implementations should go in a source file (here, src/example_type.cpp). In the case of template
+functions or a template class, a "details" folder containing "_impl.h" files should be created, and the implementations of template functions
+should be placed within (here, include/coding_styles/details/example_type_impl.h). However, for this assessment, template functions may be
+implemented in-place as with this project.
+
+Any source files for executables should go in an "exe" folder.
+
+Compiled executables should be placed in "bin", and compiled static or shared libraries should be placed in "lib".
