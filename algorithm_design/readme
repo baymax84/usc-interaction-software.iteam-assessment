@@ -1,0 +1,26 @@
+Note: For this project, all functions have been implemented in header files for simplicity
+
+General instructions
+ 1. Give a brief, high-level, step-by-step analysis of your algorithm, preferably inline via comments or alternatively in a plain text file
+ 2. Implement your algorithm
+ 3. ???
+ 4. Profit
+
+References
+ - http://en.wikipedia.org/wiki/Matrix_(mathematics)
+ - http://en.wikipedia.org/wiki/Matrix_(mathematics)#Square_matrices
+ - http://en.wikipedia.org/wiki/Covariance
+ - http://en.wikipedia.org/wiki/Covariance_matrix
+
+Part 1
+ - Suppose there exists a generic Matrix (mxn) class with a specialization for SquareMatrix (a matrix with the same number of rows and cols, nxn)
+ - Furthermore, suppose you intend to work with covariance matrices, which you know are symmetric (and therefore square), and you want to reduce the space required to store these matrices
+ - Given the API (in the form of function headers) for Matrix, SquareMatrix, and SymmetricMatrix (defined in include/algorithm_design/matrix.h)
+   * Implement "SymmetricMatrix::SymmetricMatrix( unsigned int const & )" in include/algorithm_design/matrix.h
+   * Implement "double & SymmetricMatrix::at( unsigned int const &, unsigned int const & )" in include/algorithm_design/matrix.h
+
+Part 2
+ - Now, suppose you have a set of data for which you need to gather statistics
+ - Given the API (in the form of function headers) for a GaussianPDF class (defined in include/algorithm_design/gaussian_pdf.h)
+   * Implement "void GaussianPDF::calculateMean()" in include/algorithm_design/gaussian_pdf.h
+   * Implement "void GaussianPDF::calculateCovariance()" in include/algorithm_design/gaussian_pdf.h
