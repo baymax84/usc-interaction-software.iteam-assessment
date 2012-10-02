@@ -1,0 +1,25 @@
+This project contains several programs with varying complexity; write some basic unit tests for each one according to the guidelines below
+
+- Function testing
+  - The "probabilistics" package contains a library of probability distributions and CDFs
+  - A few of these functions may not be fully implemented (comments will note them as such)
+  - Look through the functions, and for each one, write a unit test which will verify, with reasonable certainty, that each one is working
+  - References:
+    - http://en.wikipedia.org/wiki/Von_Mises_distribution
+    - http://en.wikipedia.org/wiki/Wrapped_normal_distribution
+    - http://en.wikipedia.org/wiki/Truncated_normal_distribution
+    - an "unsigned normal" is a specialization of a "truncated normal" with the lower-bound fixed at 0
+
+- Distributed system testing
+  - The "basic_ros_concepts" package contains two ROS nodes
+    - controller_node deals with a sensor value, a control signal, and a target level; it tries to minimize the error between the target level
+      and the sensor value over time
+    - driver_node deals with a sensor value and a control signal; it converts a control signal into some internal value, and sets a sensor value
+      based on that internal value
+  - For each node:
+    - Analyze the desired functionality (no need to write it down) of the node
+    - Describe, at a high level, a unit testing strategy for the node which will ensure it is functioning correctly within the general
+      constraints listed above (ie outputs are changing as expected: increasing, decreasing, etc)
+    - Create a unit testing node which will connect to all inputs/outputs (topics only, don't worry about parameters) of the node
+    - Design and implement a performance analysis of the target node within your new unit testing node (ie how long does it take the control
+      node to minimize the error, to a stable point, to within 5% of the target level, etc)
