@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="distributed_system_debugging" type="controller_node" name="controller" args="control:=/driver/control" >
+        <remap from="/driver/sensor" to="~sensor"/>
+    </node>
+    <node pkg="distributed_system_debugging" type="driver_node" name="driver_node" args="~control:=/controller/control" >
+        <remap from="sensor" to="~sensor"/>
+    </node>
+</launch>

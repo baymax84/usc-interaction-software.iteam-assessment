@@ -1,0 +1,16 @@
+<package>
+  <description brief="basic_ros_concepts">
+
+     basic_ros_concepts
+
+  </description>
+  <author>Edward T. Kaszubski</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/basic_ros_concepts</url>
+  <depend package="rosbuild"/>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="geometry_msgs"/>
+  <depend package="tf"/>
+</package>

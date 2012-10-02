@@ -1,0 +1,10 @@
+References:
+ - http://www.ros.org
+ - http://www.ros.org/wiki/roslaunch/XML
+ - http://www.ros.org/wiki/roslaunch/XML/arg
+ - http://www.ros.org/wiki/Nodes#Remapping_Arguments
+ - http://www.ros.org/wiki/roscpp/Overview/Parameter%20Server#Accessing_Private_Parameters
+
+The launch file (launch/simple_system.launch) for this package starts up the included nodes, but they don't communicate properly
+ - Figure out and describe what issues are preventing these nodes from communicating correctly
+ - Fix these issues
