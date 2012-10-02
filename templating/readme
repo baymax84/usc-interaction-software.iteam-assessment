@@ -1,0 +1,3 @@
+Refer to the design requirements for a linked list in the data_structure_design project
+ - Make a copy of your linked list class classes and any supporting classes
+ - Modify the copied source to allow your linked list to store not just double, but any other data type, including classess and/or structs
