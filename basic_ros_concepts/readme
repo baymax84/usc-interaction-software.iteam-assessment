@@ -1,0 +1,10 @@
+This project contains a set of simple ROS nodes
+ - Read through the source code and describe, at a high level, what each node is doing, and how any communications influence other nodes
+ - List the type and purpose of any parameters used by any of these nodes
+ - For each connection (topic, service, or action) started or used by any of these nodes, list:
+   - The full name
+   - The type
+   - The nodes directly involved
+   - The relationship between the nodes involved with respect to the connection (ie client/server, broadcaster/receiver, etc)
+ - Write down the command(s) you would use to run this system of nodes
+ - Write down the command(s) you would use to set the target level for controller_node to "1"; assume the system is running
