@@ -1,0 +1,34 @@
+References:
+ - http://www.ros.org
+ - http://www.ros.org/wiki/roslaunch/XML
+ - http://www.ros.org/wiki/roslaunch/XML/arg
+ - http://www.ros.org/wiki/Nodes#Remapping_Arguments
+ - http://www.ros.org/wiki/roscpp/Overview/Parameter%20Server#Accessing_Private_Parameters
+
+Using the ROS C++ API, design and implement a distributed chat system with the following properties:
+ - You may only create one node, but you may run multiple instances of it
+ - Assume that when the node is started, its name will be unique
+ - The node should read a private parameter (ie /node_name/parameter_name, not just /parameter_name) called "user_name" which will be used as a
+   unique identifier for a user; assume this user name will be alphanumeric with no whitespace
+ - The node should accept input from the command line, likely by starting a new thread and reading from std::cin
+ - The node's primary thread should check for new messages and display both the name of the user who sent the message and the message content
+   from all other users
+ - The node should not display messages sent from the user of the same chat node (ie if I type "hello" as "user1", I should not see my message
+   displayed a second time as if it was from another user)
+ - You'll likely need to create a new message type to contain both the name of the user who sent the message and the message content itself
+ - Now, write a launch file which will:
+   - start up one instance of your chat node
+   - may be run multiple times without changes
+   - will forward an arg called "user_name" to the chat node's "user_name" parameter
+   - will ensure each chat node instance has a unique name
+   - for example, you should be able to run both of the following (and more) without changing the launch file and without any nodes having the
+     same name
+     - roslaunch package chat.launch user_name:=user1
+     - roslaunch package chat.launch user_name:=user2
+
+Now, make a second version of this chat system using a client/server paradigm with the following contraints:
+ - No chat node may directly communicate with another chat node; one or more server nodes must forward any messages
+ - As with the previous example, the default behavior is to display all messages sent from all other users
+ - However, if a user enters the name of another user before the message content, in the form "<user_name>: <message>", ie:
+     "user394: hey user394, what's up?"
+   only a client with its user_name parameter set to "user394" should receive the message
