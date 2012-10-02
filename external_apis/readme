@@ -1,0 +1,31 @@
+References:
+  - http://opencv.willowgarage.com/documentation/c/index.html
+  - http://opencv.willowgarage.com/documentation/cpp/index.html
+  - http://bulletphysics.com/Bullet/BulletFull/classbtTransform.html
+
+- Using the OpenCV C (not C++) API where possible, write a program which will:
+  - Load a color image, from a path specified on the command line
+  - Convert the image to the HSV color space
+  - Split the HSV image into its three component channels
+  - Combine these channels, side-by-side (in the order H, S, V from left to right) into a new, single-channel image
+  - Display this new image in a window called "HSV Components"
+
+- Do the same as above using the C++ (not C) API where possible
+
+- Using the BulletPhysics linear algebra C++ tools:
+  - Assume you have a fixed (constant) btTransform "camera_to_checkerboard", which represents the 6-DOF pose of the center of a calibration
+    checkerboard with respect to a camera
+  - Assume this checkerboard is 0.01905 meters thick
+  - Assume that when "camera_to_checkerboard" was calculated, the checkerboard was laying flat on the floor plane, that the camera was above the
+    floor plane (perhaps attached to the ceiling or a wall), and that the point in the floor plane below the center of the checkerboard forms
+    the center of our 3D coordinate system
+  - Now, assume there exists a robot with two unique targets affixed to it, which both lie along a line in a plane parallel to the floor plane
+  - Assume you have a fixed btTransform "robot_base_to_optical_target1", which represents the pose of the first target with respect to a point
+    on the floor plane directly between the robot's wheels, and that this optical target is somewhere above this point
+  - Assume the same conditions for "robot_base_to_optical_target2"
+  - Assume you have a vision system which can provide you with the 2D location of both targets, but only in pixel coordinates from the camera's
+    perspective, via the functions "void getTarget1( double & row, double & col )" and "void getTarget2( double & row, double & col )"
+  - Finally, assume that there exists a function, "btVector3 projectPixelToRay( double const & row, double const & col )", which will return a
+    unit vector representing the ray projected out from the pixel at the given row/col in the image, with respect to the camera
+  - Write the code which will calculate the 3-DOF location of the base of the robot with respect to the center of the coordinate system
+  - Write the code which will calculate the full 6-DOF pose of the base of the robot with respect to the center of the coordinate system
